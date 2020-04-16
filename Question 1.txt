@@ -1,0 +1,55 @@
+1.Create a database having two tables with the specified fields, to computerize a library system of a Delhi University College.
+LibraryBooks (Accession number, Title, Author, Department, PurchaseDate, Price)
+ 
+IssuedBooks (Accession number, Borrower)
+
+a)	Identify primary and foreign keys. Create the tables and insert at least 5 records in each table.
+b)	Delete the record of book titled “Database System Concepts”.
+c)	Change the Department of the book titled “Discrete Maths” to “CS”.
+d)	List all books that belong to “CS” department.
+e)	List all books that belong to “CS” department and are written by author “Navathe”.
+f)	List all computer (Department = “CS”) that have been issued.
+g)	List all books which have a price less than 500 or purchased between “01/01/1999” and “01/01/2004”.
+
+
+=>Answer
+
+mysql> create database du_library;
+
+mysql> create table LibraryBooks(
+    -> Accession_Number decimal(10,5) primary key,
+    -> Title varchar(30) not null,
+    -> Author varchar(50) not null,
+    -> Department varchar(50) not null,
+    -> Purchase_Date date not null,
+    -> Price decimal(7,2) not null);
+
+mysql> create table IssuedBooks(
+    -> Accession_Number decimal(10,5) not null,
+    -> Borrower Varchar(30) not null
+    -> foreign key (Accession_Number) references LibraryBooks(Accession_Number));
+
+a)primary key- Accession_Number in table LibraryBooks
+        foreign key- Accession_Number in table IssuedBooks
+mysql> insert into LibraryBooks values(6737.84,"Discrete Maths","R. Kapoor","Mathematics",'1999/09/04',450.00);
+mysql> insert into LibraryBooks values(21826.46,"Database System Concepts","Bharat Kumar Singh","CS",'2000/05/30',620.00);
+mysql> insert into LibraryBooks values(121.4345,"Fundamental of Statistics","V.K. Kapoor","Statistics",'2005/03/31',550.00);
+mysql> insert into LibraryBooks values(76389.4647,"Programing in R","Navathe","CS",'2002/07/21',499.00);
+mysql> insert into LibraryBooks values(51235.56,"Introduction to Matrices","S.C. Gupta","Statistics",'1997-01-12',105.00);
+
+mysql> insert into IssuedBooks values( 21826.46,"anshu das");
+mysql> insert into IssuedBooks values( 121.4345,"jiyesh talwar");
+mysql> insert into IssuedBooks values( 6737.84,"saumya singh");
+mysql> insert into IssuedBooks values( 21826.46,"nayan tuteja");
+mysql> insert into IssuedBooks values( 76389.4647,"bhavya dua");
+
+b)mysql> set foreign_key_checks=Off;
+mysql> delete from issuedbooks where accession_number=21826.46;
+mysql> delete from librarybooks where title="Database System Concepts";
+mysql> set foreign_key_checks=on;
+
+c) mysql> update librarybooks set department="CS" where title="discrete maths";
+d) mysql> select Title from librarybooks where department="CS";
+e) mysql> select Title from librarybooks where department="CS" and author="navathe";
+f) mysql> select Title from librarybooks l, issuedbooks i where l.accession_number=i.accession_number and l.department="CS";
+g) mysql> select Title from librarybooks where price<500 and purchase_date between '1999/01/01' and '2004/01/01';

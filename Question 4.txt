@@ -1,0 +1,95 @@
+4.	Create the following tables, enter at least 5 records in each table and answer the queries given below.
+
+EMPLOYEE ( Person_Name, Street, City )
+ 
+WORKS ( Person_Name, Company_Name, Salary ) COMPANY ( Company_Name, City )
+MANAGES ( Person_Name, Manager_Name )
+
+a)	Identify primary and foreign keys.
+b)	Alter table employee, add a column “email” of type varchar(20).
+c)	Find the name of all managers who work for both Samba Bank and NCB Bank.
+d)	Find the names, street address and cities of residence and salary of all employees who work for “Samba Bank” and earn more than $10,000.
+e)	Find the names of all employees who live in the same city as the company for which they work.
+f)	Find the highest salary, lowest salary and average salary paid by each company.
+g)	Find the sum of salary and number of employees in each company.h) Find the name of the company that pays highest salary.
+
+
+=>Answer
+
+ mysql> create database employee_details;
+    mysql> use employee_details;
+  
+   mysql> create table employee(
+    -> Person_name char(30) primary key,
+    -> Street char(30) not null,
+    -> city char(15) not null);
+
+   mysql> create table Company(
+    -> Company_name varchar(30) primary key,
+    -> City char(15));
+
+   mysql> create table Works(
+    -> Person_name  char(30),
+    -> Company_name varchar(30),
+    -> Salary decimal(10,2),
+    -> foreign key(Person_name) references employee(Person_name),
+    -> foreign key(Company_name) references Company(Company_name));
+
+   mysql> create table manages(
+    -> Person_name char(30),
+    -> Manager_name char(30),
+    -> foreign key(Person_name) references employee(Person_name));
+
+mysql> insert into employee values("devya","23/34 B block","Delhi");
+mysql> insert into employee values("asha","454/4 V block","Gurgaon");
+mysql> insert into employee values("riya","65/6 A block","Gurgaon");
+mysql> insert into employee values("juhi","87/2 D block","Lucknow");
+mysql> insert into employee values("ansh","74/2 F block","Badarpur");
+mysql> insert into employee values("anirudh","54/2 G block","Jaipur");
+mysql> insert into employee values("akshay","347-5 A block","Jaipur");
+mysql> insert into employee values("hridya","65/8 V block","Gurgaon");
+mysql> insert into employee values("shresht","62/7 d block","Sitapur");
+mysql> insert into employee values("niki","91/8 C block","Badarpur");
+
+mysql> insert into company values("OBOI","Delhi");
+mysql> insert into company values("HDFC","Gurgaon");
+mysql> insert into company values("Axis Bank","Jaipur");
+mysql> insert into company values("ICICI bank","Lucknow");
+mysql> insert into company values("Kotak Bank","Badarpur");
+
+mysql> insert into works values("devya","OBOI", 20000);
+mysql> insert into works values("Teena","HDFC",15000);
+mysql> insert into works values("riya","OBOI",5000);
+mysql> insert into works values("juhi","SBI Bank",800);
+mysql> insert into works values("ansh","Axis Bank",1000);
+mysql> insert into works values("anirudh","HDFC",2000);
+mysql> insert into works values("akshay","Kotak Bank",1500);
+mysql> insert into works values("hridya","Axis Bank",20000);
+mysql> insert into works values("shresht","SBI Bank",1200);
+mysql> insert into works values("niki","Kotak Bank",18000);
+
+mysql> insert into manages values("devya","geyatri");
+mysql> insert into manages values("Teena","geyatri");
+mysql> insert into manages values("shresht","rahul");
+mysql> insert into manages values("niki","raman");
+mysql> insert into manages values("hridya","shikhar");
+
+a) primary key- Person_name in table employee
+                            Company_name in table company
+        foreign key- Person_name in table works
+                            Company_name in table works
+                            Person_name in table manages
+
+b) mysql> alter table employee add column email varchar(20);
+
+c) mysql> select distinct(manager_name) from manages as m, works as w where m.person_name=w.person_name and (w.company_name="OBOI" or w.Company_name="HDFC");
+
+d) mysql> select e.Person_name, e.Street, e.City, w.salary from employee as e, works as w where e.person_name=w.person_name and w.company_name="OBOI" and w.salary>10000;
+
+e) mysql> select e.person_name from employee as e, works as w, company as c where e.person_name=w.person_name and e.city=c.city and w.company_name=c.company_name;
+
+f) mysql> select company_name, max(salary), min(salary), avg(salary) from works group by company_name;
+
+g) mysql> select company_name, sum(salary), count(company_name) as "number of employees" from works group by company_name;
+
+h) mysql> select company_name,max(salary) from works;

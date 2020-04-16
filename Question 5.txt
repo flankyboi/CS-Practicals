@@ -1,0 +1,99 @@
+5.	Create the following tables, enter at least 5 records in each table and answer the queries given below.
+
+Suppliers (SNo, Sname, Status, SCity) Parts (PNo, Pname, Colour, Weight, City) Project (JNo, Jname, Jcity)
+Shipment (Sno, Pno, Jno, Qunatity)
+
+a)	Identify primary and foreign keys.
+b)	Get supplier numbers for suppliers in Paris with status>20.
+c)	Get suppliers details for suppliers who supply part P2. Display the supplier list in increasing order of supplier numbers.
+d)	Get suppliers names for suppliers who do not supply part P2.
+e)	For each shipment get full shipment details, including total shipment weights.
+f)	Get all the shipments where the quantity is in the range 300 to 750 inclusive.
+g)	Get part nos. for parts that either weigh more than 16 pounds or are supplied by suppliers S2, or both.
+h)	Get the names of cities that store more than five red parts.
+i)	Get full details of parts supplied by a supplier in London.
+j)	Get part numbers for part supplied by a supplier in London to a project in London.
+k)	Get the total number of project supplied by a supplier (say, S1).
+l)	Get the total quantity of a part (say, P1) supplied by a supplier (say, S1).
+
+
+
+=>Answer
+
+mysql> create database product;
+mysql> use product;
+
+mysql> create table suppliers(
+    -> Sno int(8) primary key,
+    -> Sname varchar(20) not null,
+    -> Status char(20) not null,
+    -> Scity char(30) not null);
+
+mysql> create table Parts(
+    -> PNo int(8) primary key,
+    -> Pname varchar(20) not null,
+    -> Colour varchar(20) not null,
+    -> Weight int(4) not null,
+    -> City char(20) not null);
+
+mysql> create table Project(
+    -> Jno int(8) primary key,
+    -> Jname char(20) not null,
+    -> Jcity char(20) not null);
+
+mysql> create table  Shipment(
+    -> Sno varchar(20) not null,
+    -> Pno int(8) not null,
+    -> Jno int(8) not null,
+    -> Quantity int(8) not null,
+    -> foreign key(Sno) references suppliers(Sno),
+    -> foreign key(Pno) references Parts(Pno),
+    -> foreign key(Jno) references Project(Jno));
+
+mysql> insert into suppliers values("101","S1",30,"Moscow");
+mysql> insert into suppliers values("102","S2",19,"New Jersey");
+mysql> insert into suppliers values("103","S1",22,"Paris");
+mysql> insert into suppliers values("104","S2",70,"Milan");
+mysql> insert into suppliers values("104","S2",70,"Milan");
+
+mysql> insert into parts values( "501","P1","Black",16,"Paris");
+mysql> insert into parts values( "502","P2","Red",40,"Moscow");
+mysql> insert into parts values( "503","P3","Gray",20,"Moscow");
+mysql> insert into parts values( "503","P2","Green",60,"Singapore");
+mysql> insert into parts values( "505","P2","Black",10,"New Jersey");
+
+mysql> insert into project values(1001,"J1","Moscow");
+mysql> insert into project values(1002,"J2","New Jersey");
+mysql> insert into project values(1003,"J3","New Jersey");
+mysql> insert into project values(1004,"J4","Singapore");
+mysql> insert into project values(1005,"J4","Delhi");
+
+mysql> insert into shipment values(101,504,1004,250);
+mysql> insert into shipment values(103,505,1002,100);
+mysql> insert into shipment values(105,502,1001,500);
+mysql> insert into shipment values(101,503,1003,300);
+mysql> insert into shipment values(102,501,1004,750);
+mysql> insert into shipment values(101,501,1000,100);
+
+a) primary key- Sno in table Suppliers
+                            Pno in table Parts
+                            Jno in table Project
+
+        foreign key- Sno in table Shipment
+                            Pno in table Shipment
+                            Jno in table Shipment
+b) mysql> select Sno from suppliers where scity="Paris" and Status>20;
+c) mysql> Select * from suppliers where Sno in(select Sno from shipment where Pno in(select Pno from parts where Pname="P2")) Order by sno;
+d) mysql> Select Sname from suppliers where Sno in(Select distinct sno from shipment where Pno in(select Pno from parts where Pname!="P2"));
+e) mysql> select s.Sno, s.Pno, s.Jno, s.Quantity, s.quantity*p.weight as "Total_shipment_weight" from shipment as s, parts as p where s.pno=p.pno;
+f) mysql> Select * from shipment where quantity between 300 and 750;
+g) mysql> select Pno from parts where weight>16 or pno in(select pno from shipment where sno in(select s.sno from shipment as s, suppliers as su where s.sno=su.sno and su.sname="S2"));
+h) mysql> select city from parts where colour="Red" and Pno in(select pno from shipment where quantity>5);
+i) mysql> select * from parts where pno in(select Pno from shipment where sno in(select sno from suppliers where Scity="Moscow"));
+j) mysql> select Pno from shipment where sno in(select sno from suppliers where scity="Moscow") and Jno in(Select jno from project where Jcity="Moscow");
+k) mysql> select count(distinct(Jno)) as "No. of Project Supplied by supplier S1" from shipment where sno in(select sno from suppliers where Sname="S1");
+l) mysql> select count(*) from parts where Pno in(Select Pno from shipment where sno in(select Sno from suppliers where sname ="S1")) and Pname="P1";
+
+
+
+
